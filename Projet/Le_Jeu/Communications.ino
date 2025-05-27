@@ -1,93 +1,50 @@
-void communications() {
-  if (Serial1.available()) {
-    String message = Serial1.readStringUntil('\n');
-    message.trim();
 
-    Serial.print("📥 Message reçu de l'ESP32 : ");
+void communications() {
+  if (Serial1.available() > 0) {
+    char message[32]; // Tableau pour stocker le message reçu
+    int len = Serial1.readBytesUntil('\n', message, 31); // Lire jusqu'à 31 caractères
+    message[len] = '\0'; // Terminer la chaîne de caractères
+
+    Serial.print("Message reçu de l'ESP32 : ");
     Serial.println(message);
 
-    if (message == "CF1") {
-      // Démarrer la partie avec le groupe "CF1"
-      startGame("CF1");
-      Serial1.println("START_GAME");
-      Serial.println("📤 Envoi à ESP32: START_GAME");
-    } 
-/*    
-    else if (message == "START_GAME") {
-      // Démarrer la partie
-      Serial.println("🎮 Commande START_GAME reçue !");
-      CF1(); // Appeler CF1 pour envoyer la confirmation après avoir reçu START_GAME
-    } else if (message == "Partie lancée") {
-      // Partie lancée
-      Serial.println("🎮 Commande Partie lancée reçue !");
-      partieLancee = true;
-      partieLanceeFonction(); // Appel de la fonction renommée
-    } else if (message == "NEXT_PLAYER") {
-      // Passer au joueur suivant
-      Serial.println("🎮 Commande JoueurSuivant reçue !");
-      joueurSuivant();
-    } else if (message == "NEXT_TURN") {
-      // Passer au tour suivant
-      Serial.println("🎮 Commande TourSuivant reçue !");
-      tourSuivant();
-    } else if (message == "GO") {
-      // Démarrer ou continuer le jeu
-      Serial.println("🎮 Commande GO reçue !");
-      go();
+    // Traitement des messages
+    if (message[0] == 'C' && message[1] == 'F') { // Si le message commence par CF
+      Serial.print("Groupe sélectionné : ");
+      Serial.println(message); // Afficher le message (groupe)
+      //strncpy(groupeSelectionne, message, 3); // Copier le groupe sélectionné // Suppression car groupeSelectionne non utilisé
+      //groupeSelectionne[3] = '\0'; // Terminer la chaîne // Suppression car groupeSelectionne non utilisé
+      Serial.print("Groupe enregistré : ");
+      Serial.println(message); // Afficher le groupe // Modifié car groupeSelectionne non utilisé
+      envoyerMessage("START"); // Envoyer "START" pour activer le bouton "Attente groupe"
+    } else if (strcmp(message, "START_GAME") == 0 && !partieDemarree) {
+      Serial.println("Message reçu : START_GAME"); // Log de réception
+      Serial.print("Partie démarrée avec le groupe : ");
+      Serial.println(message); // Afficher le groupe sélectionné // Modifié car groupeSelectionne non utilisé
+      //envoyerMessage("START_GAME"); // Ne pas renvoyer START_GAME
+      //CF1(); // Appeler CF1() pour lancer la partie // Suppression car CF1() fait déjà l'envoi de CONFIRMED_GAME
+      envoyerMessage("CONFIRMED_GAME"); // Envoyer "CONFIRMED_GAME" directement
+      partieDemarree = true;
+    } else if (strcmp(message, "CONFIRMED_GAME") == 0 && partieDemarree) {
+      Serial.println("Message reçu : CONFIRMED_GAME"); // Log de réception
+      envoyerMessage("CONFIRMED_GAME");
+    } else if (strcmp(message, "NEXT_PLAYER") == 0 && partieDemarree) {
+      Serial.println("Message reçu : NEXT_PLAYER"); // Log de réception
+      envoyerMessage("GO");
+    } else if (strcmp(message, "NEXT_TURN") == 0 && partieDemarree) {
+      Serial.println("Message reçu : NEXT_TURN"); // Log de réception
+      envoyerMessage("GO");
+    } else if (strcmp(message, "FIN_GAME") == 0 && partieDemarree) {
+      Serial.println("Message reçu : FIN_GAME"); // Log de réception
+      // Actions de fin de partie
+      partieDemarree = false;
     }
-  */
-  }
-
-  // Vérification de l'état de la partie
-  if (partieLancee) {
-    Serial.println("Partie est bien lancée depuis CF1");
-    // Ajoutez ici le code pour gérer la partie en cours
   }
 }
 
-void startGame(String group) {
-  // Logique pour démarrer la partie avec le groupe spécifié
-  Serial.println("Partie démarrée avec le groupe : " + group);
+void envoyerMessage(String message) {
+  Serial1.println(message);
+  Serial.print("Message envoyé à ESP32 : ");
+  Serial.println(message); // Log d'envoi
 }
-/*
-void startGame() {
-  // Logique pour démarrer la partie
-  Serial.println("Partie démarrée");
-  // Envoyer le message "Partie lancée" à l'ESP32
-  Serial1.println("START_GAME");
-  Serial.println("📤 Envoi à ESP32: START_GAME");
-}
-
-void partieLanceeFonction() {
-  // Logique pour démarrer "Partie lancée"
-  Serial.println("Partie démarrée");
-  // Envoyer le message "Partie lancée" à l'ESP32
-  Serial1.println("CONFIRMED_GAME");
-  Serial.println("📤 Envoi à ESP32: CONFIRMED_GAME");
-}
-
-void go() {
-  // Logique pour démarrer ou continuer le jeu
-  Serial.println("GO : Démarrage ou continuation du jeu");
-  // Envoyer le message "GO" à l'ESP32
-  Serial1.println("GO");
-  Serial.println("📤 Envoi à ESP32: GO");
-}
-
-void joueurSuivant() {
-  // Logique pour passer au joueur suivant
-  Serial.println("Passage au joueur suivant");
-  // Envoyer le message "JoueurSuivant" à l'ESP32
-  Serial1.println("NEXT_PLAYER");
-  Serial.println("📤 Envoi à ESP32: NEXT_PLAYER");
-}
-
-void tourSuivant() {
-  // Logique pour passer au tour suivant
-  Serial.println("Passage au tour suivant");
-  // Envoyer le message "TourSuivant" à l'ESP32
-  Serial1.println("NEXT_TURN");
-  Serial.println("📤 Envoi à ESP32: NEXT_TURN");
-}
-*/
 
