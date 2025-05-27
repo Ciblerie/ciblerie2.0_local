@@ -1,11 +1,13 @@
 
-void CF1() {
+void CF1(){ //------------------------------------------------------------------------------------
   Serial.println(F("CF1"));
   Serial.println(F("CF1 , Ok pour le lancement du jeu"));
-//  Serial1.println("START_GAME"); // Nouveau message pour l'état bleu
-//  Serial.println("📤 Envoi à ESP32: START_GAME");
+
+  Serial1.println("START_GAME");
+  Serial.println("📨 Envoi à ESP32: START_GAME");
+
   Serial1.println("CONFIRMED_GAME");
-  Serial.println("📤 Envoi à ESP32: CONFIRMED_GAME");
+  Serial.println("📨 Envoi à ESP32: CONFIRMED_GAME");
 
 //  indexgroupe = 0;
 
