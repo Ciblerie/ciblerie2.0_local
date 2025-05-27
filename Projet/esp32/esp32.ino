@@ -1,3 +1,4 @@
+
 #include <WiFi.h>
 #include <WebSocketsServer.h>
 #include <BluetoothSerial.h>
@@ -168,32 +169,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length)
       break;
   }
 }
-/*
-void processIncomingSerialData() {
-  while (Serial1.available()) {
-    String incomingData = Serial1.readStringUntil('\n');
-    incomingData.trim();
-    lastSerialActivity = millis();
 
-    if (incomingData.startsWith("J")) {
-      handleScoreData(incomingData);
-    } 
-    else if (incomingData == "START_GAME") {
-      sendGameStatus("start_game");
-      currentGameState = WAITING_CONFIRMATION;
-    }
-    else if (incomingData == "CONFIRMED_GAME") {
-      sendGameStatus("confirmed_game");
-      currentGameState = GAME_STARTED;
-    }
-    else if (incomingData == "FIN_GAME") {
-      sendGameStatus("finished");
-      currentGameState = IDLE;
-    }
-  }
-}
-*/
-// Dans l'ESP32
 void processIncomingSerialData() {
   while (Serial1.available()) {
     String incomingData = Serial1.readStringUntil('\n');
@@ -206,10 +182,9 @@ void processIncomingSerialData() {
       handleScoreData(incomingData);
     }
     else if (incomingData == "START_GAME") {
-      sendGameStatus("start_game");
+      sendGameStatus("ready_to_start");
       currentGameState = WAITING_CONFIRMATION;
     }
-    // Autres conditions...
   }
 }
 
@@ -232,7 +207,7 @@ void handleScoreData(const String& data) {
 void sendGameStatus(const String& status) {
   StaticJsonDocument<128> doc;
   doc["type"] = "game_status";
-  doc["status"] = status;
+  doc["message"] = status;
   String output;
   serializeJson(doc, output);
   webSocket.broadcastTXT(output);
