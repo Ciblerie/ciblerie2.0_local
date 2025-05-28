@@ -37,7 +37,7 @@ void trtPartieFinie(){
   AfficheFin();
 }  
 // ---------------------------------FIN trtPartieFinie ----------------------------------
-    
+
 void trtPartieEnCours(){
     FastLED.clear(); FastLED.show();
     Temporisation();
@@ -64,8 +64,8 @@ void trtPartieEnCours(){
       scores[joueurEnCours] = scores[joueurEnCours] + 0 + pointBonus0[joueurEnCours];
       pointBonus0[joueurEnCours] = pointBonus0[joueurEnCours] + 0;
       resetAllBonus0();
-      // Envoi du message structuré pour le joueur 1
-      String message = "J" + String(joueurEnCours + 1) + ":" + String(scores[joueurEnCours]) + ":" + String(0) + ":" + String(pointBonus0[joueurEnCours]);
+      // Envoi du message structuré pour le joueur
+      String message = "J" + String(joueurEnCours) + ":" + String(scores[joueurEnCours]) + ":" + String(0) + ":" + String(pointBonus0[joueurEnCours]);
       Serial1.println(message);
       Serial.println("📤 Envoi à ESP32: " + message);
     }
@@ -80,8 +80,8 @@ void trtPartieEnCours(){
       scores[joueurEnCours] = scores[joueurEnCours] + 5 + pointBonus5[joueurEnCours];
       pointBonus5[joueurEnCours] = pointBonus5[joueurEnCours] + 1;
       resetAllBonus5();
-      // Envoi du message structuré pour le joueur 1
-      String message = "J" + String(joueurEnCours + 1) + ":" + String(scores[joueurEnCours]) + ":" + String(5) + ":" + String(pointBonus5[joueurEnCours]);
+      // Envoi du message structuré pour le joueur
+      String message = "J" + String(joueurEnCours) + ":" + String(scores[joueurEnCours]) + ":" + String(5) + ":" + String(pointBonus5[joueurEnCours]);
       Serial1.println(message);
       Serial.println("📤 Envoi à ESP32: " + message);
     }
@@ -96,8 +96,8 @@ void trtPartieEnCours(){
       scores[joueurEnCours] = scores[joueurEnCours] + 10 + pointBonus10[joueurEnCours];
       pointBonus10[joueurEnCours] = pointBonus10[joueurEnCours] + 2;
       resetAllBonus10();
-      // Envoi du message structuré pour le joueur 1
-      String message = "J" + String(joueurEnCours + 1) + ":" + String(scores[joueurEnCours]) + ":" + String(10) + ":" + String(pointBonus10[joueurEnCours]);
+      // Envoi du message structuré pour le joueur
+      String message = "J" + String(joueurEnCours) + ":" + String(scores[joueurEnCours]) + ":" + String(10) + ":" + String(pointBonus10[joueurEnCours]);
       Serial1.println(message);
       Serial.println("📤 Envoi à ESP32: " + message);
     }
@@ -112,8 +112,8 @@ void trtPartieEnCours(){
       scores[joueurEnCours] = scores[joueurEnCours]+15+pointBonus15[joueurEnCours];
       pointBonus15[joueurEnCours] = pointBonus15[joueurEnCours]+3;
       resetAllBonus15();
-      // Envoi du message structuré pour le joueur 1
-      String message = "J" + String(joueurEnCours + 1) + ":" + String(scores[joueurEnCours]) + ":" + String(15) + ":" + String(pointBonus15[joueurEnCours]);
+      // Envoi du message structuré pour le joueur
+      String message = "J" + String(joueurEnCours) + ":" + String(scores[joueurEnCours]) + ":" + String(15) + ":" + String(pointBonus15[joueurEnCours]);
       Serial1.println(message);
       Serial.println("📤 Envoi à ESP32: " + message);
     }  
@@ -128,8 +128,8 @@ void trtPartieEnCours(){
       scores[joueurEnCours] = scores[joueurEnCours]+25+pointBonus25[joueurEnCours];
       pointBonus25[joueurEnCours] = pointBonus25[joueurEnCours]+4;
       resetAllBonus25();
-      // Envoi du message structuré pour le joueur 1
-      String message = "J" + String(joueurEnCours + 1) + ":" + String(scores[joueurEnCours]) + ":" + String(25) + ":" + String(pointBonus25[joueurEnCours]);
+      // Envoi du message structuré pour le joueur
+      String message = "J" + String(joueurEnCours) + ":" + String(scores[joueurEnCours]) + ":" + String(25) + ":" + String(pointBonus25[joueurEnCours]);
       Serial1.println(message);
       Serial.println("📤 Envoi à ESP32: " + message);     
     }   
@@ -142,8 +142,8 @@ void trtPartieEnCours(){
       scores[joueurEnCours] = scores[joueurEnCours]+50+pointBonus50[joueurEnCours];
       pointBonus50[joueurEnCours] = pointBonus50[joueurEnCours]+5;
       resetAllBonus50();
-      // Envoi du message structuré pour le joueur 1
-      String message = "J" + String(joueurEnCours + 1) + ":" + String(scores[joueurEnCours]) + ":" + String(50) + ":" + String(pointBonus50[joueurEnCours]);
+      // Envoi du message structuré pour le joueur
+      String message = "J" + String(joueurEnCours) + ":" + String(scores[joueurEnCours]) + ":" + String(50) + ":" + String(pointBonus50[joueurEnCours]);
       Serial1.println(message);
       Serial.println("📤 Envoi à ESP32: " + message);
     }
@@ -156,8 +156,8 @@ void trtPartieEnCours(){
       scores[joueurEnCours] = scores[joueurEnCours]+100+pointBonus100[joueurEnCours];
       pointBonus100[joueurEnCours] = pointBonus100[joueurEnCours]+10;
       resetAllBonus100();
-      // Envoi du message structuré pour le joueur 1
-      String message = "J" + String(joueurEnCours + 1) + ":" + String(scores[joueurEnCours]) + ":" + String(100) + ":" + String(pointBonus100[joueurEnCours]);
+      // Envoi du message structuré pour le joueur
+      String message = "J" + String(joueurEnCours) + ":" + String(scores[joueurEnCours]) + ":" + String(100) + ":" + String(pointBonus100[joueurEnCours]);
       Serial1.println(message);
       Serial.println("📤 Envoi à ESP32: " + message);
     }
@@ -170,8 +170,8 @@ void trtPartieEnCours(){
       scores[joueurEnCours] = scores[joueurEnCours]+150+pointBonus150[joueurEnCours];
       pointBonus150[joueurEnCours] = pointBonus150[joueurEnCours]+15;
       resetAllBonus150();
-      // Envoi du message structuré pour le joueur 1
-      String message = "J" + String(joueurEnCours + 1) + ":" + String(scores[joueurEnCours]) + ":" + String(150) + ":" + String(pointBonus150[joueurEnCours]);
+      // Envoi du message structuré pour le joueur
+      String message = "J" + String(joueurEnCours) + ":" + String(scores[joueurEnCours]) + ":" + String(150) + ":" + String(pointBonus150[joueurEnCours]);
       Serial1.println(message);
       Serial.println("📤 Envoi à ESP32: " + message);
     }
@@ -184,8 +184,8 @@ void trtPartieEnCours(){
       scores[joueurEnCours] = scores[joueurEnCours]+200+pointBonus200[joueurEnCours];
       pointBonus200[joueurEnCours] = pointBonus200[joueurEnCours]+20;
       resetAllBonus200();
-      // Envoi du message structuré pour le joueur 1
-      String message = "J" + String(joueurEnCours + 1) + ":" + String(scores[joueurEnCours]) + ":" + String(200) + ":" + String(pointBonus200[joueurEnCours]);
+      // Envoi du message structuré pour le joueur
+      String message = "J" + String(joueurEnCours) + ":" + String(scores[joueurEnCours]) + ":" + String(200) + ":" + String(pointBonus200[joueurEnCours]);
       Serial1.println(message);
       Serial.println("📤 Envoi à ESP32: " + message);
     }
@@ -198,8 +198,8 @@ void trtPartieEnCours(){
       scores[joueurEnCours] = scores[joueurEnCours]+250+pointBonus250[joueurEnCours];
       pointBonus250[joueurEnCours] = pointBonus250[joueurEnCours]+25;
       resetAllBonus250();
-      // Envoi du message structuré pour le joueur 1
-      String message = "J" + String(joueurEnCours + 1) + ":" + String(scores[joueurEnCours]) + ":" + String(250) + ":" + String(pointBonus250[joueurEnCours]);
+      // Envoi du message structuré pour le joueur
+      String message = "J" + String(joueurEnCours) + ":" + String(scores[joueurEnCours]) + ":" + String(250) + ":" + String(pointBonus250[joueurEnCours]);
       Serial1.println(message);
       Serial.println("📤 Envoi à ESP32: " + message);
     }
