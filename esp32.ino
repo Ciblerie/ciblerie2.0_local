@@ -188,7 +188,7 @@ void processIncomingSerialData() {
     Serial.println("📥 Message reçu de l'Arduino: " + incomingData);
 
     if (incomingData.startsWith("J")) {
-      handleScoreData(incomingData);
+      handleScoreData(incomingData.substring(1)); // Enlever le J ici aussi
     } else if (incomingData == "START") {
       sendGameStatus("START");
       currentGameState = WAITING_CONFIRMATION;
@@ -200,16 +200,25 @@ void processIncomingSerialData() {
 
 void handleScoreData(const String& data) {
   int colon1 = data.indexOf(':');
-  int colon2 = data.lastIndexOf(':');
+  int colon2 = data.indexOf(':', colon1 + 1);
+  int colon3 = data.lastIndexOf(':');
 
-  StaticJsonDocument<256> doc;
-  doc["type"] = "score_update";
-  doc["playerIndex"] = data.substring(1, colon1).toInt() - 1;
-  doc["point"] = data.substring(colon1 + 1, colon2).toInt();
-  doc["score"] = data.substring(colon2 + 1).toInt();
+  // Extraction des données
+  int playerIndex = data.substring(0, colon1).toInt();
+  int score = data.substring(colon1 + 1, colon2).toInt();
+  int points = data.substring(colon2 + 1, colon3).toInt();
+  int pointsbonus = data.substring(colon3 + 1).toInt();
 
+  // Création du nouveau document JSON
+  StaticJsonDocument<256> outputDoc;
+  outputDoc["playerIndex"] = playerIndex;
+  outputDoc["score"] = score;
+  outputDoc["points"] = points;
+  outputDoc["pointsbonus"] = pointsbonus;
+
+  // Serialisation et envoi
   String output;
-  serializeJson(doc, output);
+  serializeJson(outputDoc, output);
   webSocket.broadcastTXT(output);
   Serial.println("📨 Score: " + output);
 }
