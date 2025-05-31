@@ -7,7 +7,7 @@ import '../models/group_model.dart';
 import 'classement_screen.dart';
 
 class ScoresScreen extends StatefulWidget {
-  const ScoresScreen({Key? key}) : super(key: key);
+  const ScoresScreen({super.key});
 
   @override
   State<ScoresScreen> createState() => _ScoresScreenState();
@@ -24,7 +24,26 @@ class _ScoresScreenState extends State<ScoresScreen> with TickerProviderStateMix
   bool showFinGameOverlay = false;
   bool hasNavigatedToClassement = false;
 
-  late AnimationController _blinkController;
+  // === ÉTAT POUR LE BOUTON "ATTENTE GROUPE" ===
+  bool _isAttenteGroupeButtonEnabled = true; // Activé par défaut
+  Color _attenteGroupeButtonColor = Colors.orange; // Orange par défaut
+  String _attenteGroupeButtonText = 'Partie en attente';
+  bool _isAttenteGroupeButtonBlinking = true; // Activation du clignotement par défaut
+
+  // === GESTION DES BOUTONS ===
+  String _nextPlayerButtonText = 'Joueur suivant';
+  String _nextTurnButtonText = 'Tour suivant';
+
+  Color _nextPlayerButtonColor = Colors.blue;
+  Color _nextTurnButtonColor = Colors.blue;
+
+  bool _isNextPlayerButtonBlinking = false;
+  bool _isNextTurnButtonBlinking = false;
+
+  bool _isNextPlayerButtonEnabled = false;
+  bool _isNextTurnButtonEnabled = false;
+
+  late AnimationController _blinkController; // Ajout de l'animationController
   StreamSubscription<String>? _messageSubscription;
 
   @override
@@ -41,10 +60,12 @@ class _ScoresScreenState extends State<ScoresScreen> with TickerProviderStateMix
       duration: const Duration(milliseconds: 500),
     );
 
-    _blinkController = AnimationController(
+    _blinkController = AnimationController(  // Ajout de l'animationController
       duration: const Duration(seconds: 1), // Clignotement toutes les secondes
       vsync: this,
     );
+    _blinkController.repeat(reverse: true); // Démarrage de l'animation de clignotement
+    // _blinkController.stop(); // Suppression de l'appel à repeat ici
 
     // Lancer l'animation au démarrage
     _controller.forward();
@@ -53,102 +74,169 @@ class _ScoresScreenState extends State<ScoresScreen> with TickerProviderStateMix
     _setupWebSocketListener();
   }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    _overlayController.dispose();
-    _blinkController.dispose();
-    _messageSubscription?.cancel();
-    super.dispose();
-  }
-
   void _setupWebSocketListener() {
     final ws = Provider.of<WebSocketService>(context, listen: false);
     _messageSubscription = ws.messages.listen((message) {
       final data = json.decode(message) as Map<String, dynamic>;
       final type = data['type'] as String?;
       if (type != null) {
-        _handleWebSocketMessage(type, message);
+        _handleWebSocketMessage(type, message); // Pass the message here
       }
     });
   }
 
-  void _handleWebSocketMessage(String type, String message) {
+  void _handleWebSocketMessage(String type, String message) { // Receive the message here
     if (!mounted) return;
 
-    final ws = Provider.of<WebSocketService>(context, listen: false);
-
-    switch (type) {
-      case 'game_status':
-        final data = json.decode(message) as Map<String, dynamic>;
-        final wsMessage = data['message'] as String?;
-        if (wsMessage == 'START') {
-          ws.updateAttenteGroupeButtonState(
-            color: Colors.orange,
-            enabled: true,
-            text: 'Partie en attente',
-            blinking: true,
+    setState(() {
+      switch (type) {
+        case 'game_status':
+          final data = json.decode(message) as Map<String, dynamic>;
+          final wsMessage = data['message'] as String?;
+          if (wsMessage == 'START') {
+            print('Message "START" reçu'); // Ajout du print
+            _updateButtonStates(
+              nextPlayerColor: Colors.green,
+              nextTurnColor: Colors.green,
+              nextPlayerEnabled: false,
+              nextTurnEnabled: false,
+              nextPlayerBlinking: false,
+              nextTurnBlinking: false,
+            );
+            _updateAttenteGroupeButtonState(
+              color: Colors.orange,
+              enabled: true,
+              text: 'Partie en attente',
+              blinking: true, // Activer le clignotement
+            );
+          }
+          break;
+        case 'START_GAME_CONFIRMED': // Suppression car non utilisé
+          break;
+        case 'NEXT_PLAYER':
+          _updateButtonStates(
+            nextPlayerColor: Colors.orange,
+            nextTurnColor: Colors.green,
+            nextPlayerEnabled: true,
+            nextTurnEnabled: false,
+            nextPlayerBlinking: true,
+            nextTurnBlinking: false,
           );
-          ws.updateNextPlayerButtonState(enabled: false);
-          ws.updateNextTurnButtonState(enabled: false);
-        } else if (wsMessage == 'CONFIRMED_GAME') {
-          ws.updateAttenteGroupeButtonState(
-            color: Colors.green,
+          break;
+        case 'NEXT_TURN':
+          _updateButtonStates(
+            nextPlayerColor: Colors.orange,
+            nextTurnColor: Colors.green,
+            nextPlayerEnabled: false,
+            nextTurnEnabled: true,
+            nextPlayerBlinking: true,
+            nextTurnBlinking: true,
+          );
+          break;
+        case 'FIN_GAME':
+          _showFinGameOverlay();
+          _updateButtonStates(
+            nextPlayerColor: Colors.blue,
+            nextTurnColor: Colors.blue,
+            nextPlayerEnabled: false,
+            nextTurnEnabled: false,
+            nextPlayerBlinking: false,
+            nextTurnBlinking: false,
+          );
+          _updateAttenteGroupeButtonState(
+            color: const Color(0xFF7DBFF8),
             enabled: false,
-            text: 'Partie lancée',
-            blinking: false,
+            text: 'Attente groupe',
+            blinking: false, // Désactiver le clignotement
           );
-          ws.updateNextPlayerButtonState(enabled: false);
-          ws.updateNextTurnButtonState(enabled: false);
-        }
-        break;
-      case 'NEXT_PLAYER':
-        ws.updateAttenteGroupeButtonState(
-          color: Colors.green,
-          enabled: false,
-          text: 'Partie lancée',
-          blinking: false,
-        );
-        ws.updateNextPlayerButtonState(enabled: true);
-        ws.updateNextTurnButtonState(enabled: false);
-        break;
-      case 'NEXT_TURN':
-        ws.updateAttenteGroupeButtonState(
-          color: Colors.green,
-          enabled: false,
-          text: 'Partie lancée',
-          blinking: false,
-        );
-        ws.updateNextPlayerButtonState(enabled: false);
-        ws.updateNextTurnButtonState(enabled: true);
-        break;
-      case 'FIN_GAME':
-        ws.updateAttenteGroupeButtonState(
-          color: const Color(0xFF7DBFF8),
-          enabled: false,
-          text: 'Attente groupe',
-          blinking: false,
-        );
-        ws.updateNextPlayerButtonState(enabled: false);
-        ws.updateNextTurnButtonState(enabled: false);
-        _showFinGameOverlay();
-        break;
+          break;
+      }
+    });
+  }
+
+  // === NOUVELLE FONCTION POUR METTRE À JOUR L'ÉTAT DU BOUTON "ATTENTE GROUPE" ===
+  void _updateAttenteGroupeButtonState({
+    required Color color,
+    required bool enabled,
+    required String text,
+    required bool blinking, // Ajout du paramètre blinking
+  }) {
+    print('Appel de _updateAttenteGroupeButtonState avec enabled = $enabled'); // Ajout du print
+    _attenteGroupeButtonColor = color;
+    _isAttenteGroupeButtonEnabled = enabled;
+    _attenteGroupeButtonText = text;
+    _isAttenteGroupeButtonBlinking = blinking; // Mettre à jour l'état du clignotement
+
+    if (_isAttenteGroupeButtonBlinking) {
+      _blinkController.repeat(reverse: true); // Démarrer l'animation de clignotement
+    } else {
+      _blinkController.stop(); // Arrêter l'animation de clignotement
     }
   }
 
+  // Fonction pour envoyer le message "START_GAME"
   void _onStartGamePressed() {
+    print('Fonction _onStartGamePressed appelée'); // Ajout du print
     final ws = Provider.of<WebSocketService>(context, listen: false);
     ws.sendMessage(json.encode({'type': 'game_status', 'message': 'START_GAME'}));
+    setState(() {
+      _updateAttenteGroupeButtonState(
+        color: Colors.grey, // Modifier la couleur en gris
+        enabled: false,
+        text: 'Partie lancée',
+        blinking: false, // Désactiver le clignotement
+      );
+    });
+  }
+
+  void _updateButtonStates({
+    required Color nextPlayerColor,
+    required Color nextTurnColor,
+    required bool nextPlayerEnabled,
+    required bool nextTurnEnabled,
+    required bool nextPlayerBlinking,
+    required bool nextTurnBlinking,
+  }) {
+    _nextPlayerButtonColor = nextPlayerColor;
+    _nextTurnButtonColor = nextTurnColor;
+
+    _isNextPlayerButtonEnabled = nextPlayerEnabled;
+    _isNextTurnButtonEnabled = nextTurnEnabled;
+
+    _isNextPlayerButtonBlinking = nextPlayerBlinking;
+    _isNextTurnButtonBlinking = nextTurnBlinking;
+
+    if (_isNextPlayerButtonBlinking || _isNextTurnButtonBlinking) {
+      _blinkController.repeat(reverse: true);
+    } else {
+      _blinkController.stop();
+    }
   }
 
   void _onNextPlayerPressed() {
     final ws = Provider.of<WebSocketService>(context, listen: false);
     ws.sendMessage(json.encode({'type': 'next_player', 'message': 'NEXT_PLAYER'}));
+    _updateButtonStates(
+      nextPlayerColor: Colors.green,
+      nextTurnColor: Colors.green,
+      nextPlayerEnabled: false,
+      nextTurnEnabled: false,
+      nextPlayerBlinking: false,
+      nextTurnBlinking: false,
+    );
   }
 
   void _onNextTurnPressed() {
     final ws = Provider.of<WebSocketService>(context, listen: false);
     ws.sendMessage(json.encode({'type': 'next_turn', 'message': 'NEXT_TURN'}));
+    _updateButtonStates(
+      nextPlayerColor: Colors.green,
+      nextTurnColor: Colors.green,
+      nextPlayerEnabled: false,
+      nextTurnEnabled: false,
+      nextPlayerBlinking: false,
+      nextTurnBlinking: false,
+    );
   }
 
   void _showFinGameOverlay() async {
@@ -182,6 +270,8 @@ class _ScoresScreenState extends State<ScoresScreen> with TickerProviderStateMix
   Widget build(BuildContext context) {
     final ws = Provider.of<WebSocketService>(context);
     final groupModel = Provider.of<GroupModel>(context);
+
+    print('La valeur de _isAttenteGroupeButtonEnabled est : $_isAttenteGroupeButtonEnabled'); // Ajout du print
 
     return Scaffold(
       appBar: AppBar(
@@ -218,90 +308,70 @@ class _ScoresScreenState extends State<ScoresScreen> with TickerProviderStateMix
           // Bouton "Partie en attente"
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: FadeTransition(
-              opacity: ws.isAttenteGroupeButtonBlinking.value ? Tween<double>(begin: 1.0, end: 0.0).animate(_blinkController) : const AlwaysStoppedAnimation(1.0),
-              child: ValueListenableBuilder<bool>(
-                valueListenable: ws.isAttenteGroupeButtonEnabled,
-                builder: (context, isEnabled, _) {
-                  return ElevatedButton(
-                    onPressed: isEnabled ? _onStartGamePressed : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: ws.attenteGroupeButtonColor.value,
-                      disabledBackgroundColor: const Color(0xFF7DBFF8),
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    child: ValueListenableBuilder<String>(
-                      valueListenable: ws.attenteGroupeButtonText,
-                      builder: (context, text, _) {
-                        return Text(
-                          text,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        );
-                      },
-                    ),
-                  );
-                },
+            child: FadeTransition( // Ajouter FadeTransition pour le clignotement
+              opacity: _isAttenteGroupeButtonBlinking ? Tween<double>(begin: 1.0, end: 0.0).animate(_blinkController) : const AlwaysStoppedAnimation(1.0), // Contrôler l'opacité avec l'animation de clignotement
+              child: ElevatedButton(
+                onPressed: _isAttenteGroupeButtonEnabled ? _onStartGamePressed : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _attenteGroupeButtonColor,
+                  disabledBackgroundColor: Colors.green, // Modifier la couleur du bouton désactivé
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                child: Text(
+                  _attenteGroupeButtonText,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
               ),
             ),
           ),
           // Bouton "Joueur suivant"
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: ValueListenableBuilder<bool>(
-              valueListenable: ws.isNextPlayerButtonEnabled,
-              builder: (context, isEnabled, _) {
-                return ElevatedButton(
-                  onPressed: isEnabled ? _onNextPlayerPressed : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _nextPlayerButtonColor, // TODO: use ValueListenableBuilder if color changes
-                    disabledBackgroundColor: Colors.blue, // TODO:  use ValueListenableBuilder if color changes
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                  child: Text(
-                    _nextPlayerButtonText,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                );
-              },
+            child: ElevatedButton(
+              onPressed: _isNextPlayerButtonEnabled ? _onNextPlayerPressed : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _nextPlayerButtonColor,
+                disabledBackgroundColor: Colors.blue,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              child: Text(
+                _nextPlayerButtonText,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
             ),
           ),
           // Bouton "Tour suivant"
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: ValueListenableBuilder<bool>(
-              valueListenable: ws.isNextTurnButtonEnabled,
-              builder: (context, isEnabled, _) {
-                return ElevatedButton(
-                  onPressed: isEnabled ? _onNextTurnPressed : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _nextTurnButtonColor, // TODO: use ValueListenableBuilder if color changes
-                    disabledBackgroundColor: Colors.blue, // TODO:  use ValueListenableBuilder if color changes
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                  child: Text(
-                    _nextTurnButtonText,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                );
-              },
+            child: ElevatedButton(
+              onPressed: _isNextTurnButtonEnabled ? _onNextTurnPressed : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _nextTurnButtonColor,
+                disabledBackgroundColor: Colors.blue,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              child: Text(
+                _nextTurnButtonText,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
             ),
           ),
         ],
@@ -335,7 +405,7 @@ class _ScoresScreenState extends State<ScoresScreen> with TickerProviderStateMix
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     _buildScoreCard(
-                                      '${pseudos[0] ?? "J1"} : ${scores[0] ?? 0}',
+                                      '${pseudos[0] ?? "J1"} : ${scores[1] ?? 0}',
                                       cardWidth,
                                       cardHeight,
                                       fontSize,
@@ -345,7 +415,7 @@ class _ScoresScreenState extends State<ScoresScreen> with TickerProviderStateMix
                                     ),
                                     SizedBox(width: spacing),
                                     _buildScoreCard(
-                                      '${pseudos[1] ?? "J2"} : ${scores[1] ?? 0}',
+                                      '${pseudos[1] ?? "J2"} : ${scores[2] ?? 0}',
                                       cardWidth,
                                       cardHeight,
                                       fontSize,
@@ -360,7 +430,7 @@ class _ScoresScreenState extends State<ScoresScreen> with TickerProviderStateMix
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     _buildScoreCard(
-                                      '${pseudos[2] ?? "J3"} : ${scores[2] ?? 0}',
+                                      '${pseudos[2] ?? "J3"} : ${scores[3] ?? 0}',
                                       cardWidth,
                                       cardHeight,
                                       fontSize,
@@ -370,7 +440,7 @@ class _ScoresScreenState extends State<ScoresScreen> with TickerProviderStateMix
                                     ),
                                     SizedBox(width: spacing),
                                     _buildScoreCard(
-                                      '${pseudos[3] ?? "J4"} : ${scores[3] ?? 0}',
+                                      '${pseudos[3] ?? "J4"} : ${scores[4] ?? 0}',
                                       cardWidth,
                                       cardHeight,
                                       fontSize,
@@ -441,5 +511,14 @@ class _ScoresScreenState extends State<ScoresScreen> with TickerProviderStateMix
         textAlign: TextAlign.center,
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _overlayController.dispose();
+    _blinkController.dispose();  // Suppression de l'animationController
+    _messageSubscription?.cancel();
+    super.dispose();
   }
 }
