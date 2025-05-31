@@ -88,7 +88,7 @@ void trtPartieEnCours() {
       pointBonus0[joueurEnCours] = pointBonus0[joueurEnCours] + 0;
       resetAllBonus0();
       // Envoi du message structuré pour le joueur
-      String message = "J" + String(joueurEnCours) + " : " + String(0) + " : " + String(pointBonus0[joueurEnCours]) + " : " + String(scores[joueurEnCours]);
+      String message = "J" + String(joueurEnCours -1) + " : " + String(0) + " : " + String(pointBonus0[joueurEnCours]) + " : " + String(scores[joueurEnCours]);
       Serial1.println(message);
       Serial.println("📤 Envoi à ESP32: " + message);
     }
@@ -104,7 +104,7 @@ void trtPartieEnCours() {
       pointBonus5[joueurEnCours] = pointBonus5[joueurEnCours] + 1;
       resetAllBonus5();
       // Envoi du message structuré pour le joueur
-      String message = "J" + String(joueurEnCours) + " : " + String(5) + " : " + String(pointBonus5[joueurEnCours]) + " : " + String(scores[joueurEnCours]);
+      String message = "J" + String(joueurEnCours -1) + " : " + String(5) + " : " + String((pointBonus5[joueurEnCours]) -1)+ " : " + String(scores[joueurEnCours]);
       Serial1.println(message);
       Serial.println("📤 Envoi à ESP32 : " + message);
     }
@@ -329,6 +329,9 @@ void GererInterruption(){
   Serial.print("nbJoueurs: "); Serial.println(nbJoueurs);
   Serial.print("nbTours: "); Serial.println(nbTours);
 
+//  noInterrupts();
+//  Serial.println("noInterrupts");
+
   if ( joueurEnCours == nbJoueurs && tourEnCours == nbTours && resteEnCours == 1 ){
     Serial.println("GererInterruption - Fin de partie");
     testKiller();
@@ -412,6 +415,8 @@ void GererInterruption(){
    Serial.println("GO_JS");    
   }
   Serial.println("GererInterruption - Fin");
+//  interrupts();
+//  Serial.println("interrupts");
 }
 
 void EcranInitialisation(){
