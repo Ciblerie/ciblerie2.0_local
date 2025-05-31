@@ -160,9 +160,17 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length)
         Serial1.println("START_GAME");
         Serial.println("📨 Envoi à Arduino: START_GAME");
 
-      } else if (type == "game_status" && msg == "CONFIRMED_GAME") {
-        Serial1.println("CONFIRMED_GAME");
-        Serial.println("📨 Envoi à Arduino: CONFIRMED_GAME");
+      } else if (type == "game_status" && msg == "NEXT_PLAYER") {
+        Serial1.println("NEXT_PLAYER");
+        Serial.println("📨 Envoi à Arduino: NEXT_PLAYER");
+
+      } else if (type == "game_status" && msg == "NEXT_TURN") {
+        Serial1.println("NEXT_TURN");
+        Serial.println("📨 Envoi à Arduino: NEXT_TURN");
+
+      } else if (type == "game_status" && msg == "GO") {
+        Serial1.println("GO");
+        Serial.println("📨 Envoi à Arduino: GO");
       }
       break;
     }
@@ -188,12 +196,19 @@ void processIncomingSerialData() {
     Serial.println("📥 Message reçu de l'Arduino: " + incomingData);
 
     if (incomingData.startsWith("J")) {
-      handleScoreData(incomingData.substring(1)); // Enlever le J ici aussi
+      handleScoreData(incomingData.substring(1));
     } else if (incomingData == "START") {
       sendGameStatus("START");
       currentGameState = WAITING_CONFIRMATION;
-    } else if (incomingData == "CONFIRMED_GAME") {
-      sendGameStatus("CONFIRMED_GAME");
+
+    } else if (incomingData == "NEXT_PLAYER") {
+      sendGameStatus("NEXT_PLAYER");
+
+    } else if (incomingData == "NEXT_TURN") {
+      sendGameStatus("NEXT_TURN");
+      
+    } else if (incomingData == "GO") {
+      sendGameStatus("GO");
     }
   }
 }
@@ -205,16 +220,16 @@ void handleScoreData(const String& data) {
 
   // Extraction des données
   int playerIndex = data.substring(0, colon1).toInt();
-  int point = data.substring(colon1 + 1, colon2).toInt();
-  int pointbonus = data.substring(colon2 + 1, colon3).toInt();
+  int points = data.substring(colon1 + 1, colon2).toInt();
+  int pointsbonus = data.substring(colon2 + 1, colon3).toInt();
   int score = data.substring(colon3 + 1).toInt();
 
   // Création du nouveau document JSON
   StaticJsonDocument<256> outputDoc;
   outputDoc["playerIndex"] = playerIndex;
-  outputDoc["point"] = score;
-  outputDoc["pointbonus"] = points;
-  outputDoc["score"] = pointsbonus;
+  outputDoc["points"] = points;
+  outputDoc["pointsbonus"] = pointsbonus;
+  outputDoc["score"] = score;
 
   // Serialisation et envoi
   String output;
