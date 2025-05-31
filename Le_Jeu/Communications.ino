@@ -13,7 +13,7 @@ void communications() {
     Serial.println(messageRecu);
 
     // Traitement des messages
-    if (messageRecu[0] != '\0' && strcmp(messageRecu, "START_GAME") != 0 && strcmp(messageRecu, "CONFIRMED_GAME") != 0 && strcmp(messageRecu, "NEXT_PLAYER") != 0 && strcmp(messageRecu, "NEXT_TURN") != 0 && strcmp(messageRecu, "FIN_GAME") != 0) {
+    if (messageRecu[0] != '\0' && strcmp(messageRecu, "START_GAME") != 0 && strcmp(messageRecu, "NEXT_PLAYER") != 0 && strcmp(messageRecu, "NEXT_TURN") != 0 && strcmp(messageRecu, "FIN_GAME") != 0) {
       groupeSelectionne = String(messageRecu);
       Serial.print("Groupe sélectionné : ");
       Serial.println(groupeSelectionne);
