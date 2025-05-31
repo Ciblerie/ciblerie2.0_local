@@ -91,12 +91,6 @@ void communications() {
       }
       partieDemarree = true;
       groupeSelectionne = ""; // Réinitialiser la variable groupeSelectionne
-    } else if (strcmp(messageRecu, "CONFIRMED_GAME") == 0 && partieDemarree) {
-      Serial.println("Message reçu : CONFIRMED_GAME");
-      //envoyerMessage("CONFIRMED_GAME");
-      Serial1.println("CONFIRMED_GAME");
-       Serial.print("📨 Message envoyé à ESP32 : ");
-      Serial.println("CONFIRMED_GAME");
     } else if (strcmp(messageRecu, "NEXT_PLAYER") == 0 && partieDemarree) {
       Serial.println("Message reçu : NEXT_PLAYER");
       //envoyerMessage("GO");
