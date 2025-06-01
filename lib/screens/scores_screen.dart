@@ -24,11 +24,11 @@ class _ScoresScreenState extends State<ScoresScreen> with TickerProviderStateMix
   bool showFinGameOverlay = false;
   bool hasNavigatedToClassement = false;
 
-  // === ÉTAT POUR LE BOUTON "ATTENTE GROUPE" ===
-  bool _isAttenteGroupeButtonEnabled = true; // Activé par défaut
-  Color _attenteGroupeButtonColor = Colors.orange; // Orange par défaut
+  // === NOUVEL ÉTAT POUR LE BOUTON "ATTENTE GROUPE" ===
+  bool _isAttenteGroupeButtonEnabled = false;
+  Color _attenteGroupeButtonColor = const Color(0xFF7DBFF8); // Bleu par défaut
   String _attenteGroupeButtonText = 'Partie en attente';
-  bool _isAttenteGroupeButtonBlinking = true; // Activation du clignotement par défaut
+  bool _isAttenteGroupeButtonBlinking = false; // Ajout du booléen pour le clignotement
 
   // === GESTION DES BOUTONS ===
   String _nextPlayerButtonText = 'Joueur suivant';
@@ -43,7 +43,7 @@ class _ScoresScreenState extends State<ScoresScreen> with TickerProviderStateMix
   bool _isNextPlayerButtonEnabled = false;
   bool _isNextTurnButtonEnabled = false;
 
-  late AnimationController _blinkController; // Ajout de l'animationController
+  late AnimationController _blinkController;
   StreamSubscription<String>? _messageSubscription;
 
   @override
@@ -60,12 +60,11 @@ class _ScoresScreenState extends State<ScoresScreen> with TickerProviderStateMix
       duration: const Duration(milliseconds: 500),
     );
 
-    _blinkController = AnimationController(  // Ajout de l'animationController
+    _blinkController = AnimationController(
       duration: const Duration(seconds: 1), // Clignotement toutes les secondes
       vsync: this,
     );
-    _blinkController.repeat(reverse: true); // Démarrage de l'animation de clignotement
-    // _blinkController.stop(); // Suppression de l'appel à repeat ici
+    //_blinkController.repeat(reverse: true); // Suppression de l'appel à repeat ici
 
     // Lancer l'animation au démarrage
     _controller.forward();
@@ -85,7 +84,7 @@ class _ScoresScreenState extends State<ScoresScreen> with TickerProviderStateMix
     });
   }
 
-  void _handleWebSocketMessage(String type, String message) { // Receive the message here
+  void _handleWebSocketMessage(String type, String message) {
     if (!mounted) return;
 
     setState(() {
@@ -94,7 +93,7 @@ class _ScoresScreenState extends State<ScoresScreen> with TickerProviderStateMix
           final data = json.decode(message) as Map<String, dynamic>;
           final wsMessage = data['message'] as String?;
           if (wsMessage == 'START') {
-            print('Message "START" reçu'); // Ajout du print
+            print('Message "START" reçu');
             _updateButtonStates(
               nextPlayerColor: Colors.green,
               nextTurnColor: Colors.green,
@@ -110,8 +109,6 @@ class _ScoresScreenState extends State<ScoresScreen> with TickerProviderStateMix
               blinking: true, // Activer le clignotement
             );
           }
-          break;
-        case 'START_GAME_CONFIRMED': // Suppression car non utilisé
           break;
         case 'NEXT_PLAYER':
           _updateButtonStates(
@@ -129,7 +126,7 @@ class _ScoresScreenState extends State<ScoresScreen> with TickerProviderStateMix
             nextTurnColor: Colors.green,
             nextPlayerEnabled: false,
             nextTurnEnabled: true,
-            nextPlayerBlinking: true,
+            nextPlayerBlinking: false,
             nextTurnBlinking: true,
           );
           break;
@@ -176,15 +173,16 @@ class _ScoresScreenState extends State<ScoresScreen> with TickerProviderStateMix
 
   // Fonction pour envoyer le message "START_GAME"
   void _onStartGamePressed() {
-    print('Fonction _onStartGamePressed appelée'); // Ajout du print
+    print('Fonction _onStartGamePressed appelée');
     final ws = Provider.of<WebSocketService>(context, listen: false);
     ws.sendMessage(json.encode({'type': 'game_status', 'message': 'START_GAME'}));
-    setState(() {
-      _updateAttenteGroupeButtonState(
-        color: Colors.green, // Modifier la couleur en gris
+
+    setState(() {  // Ajout de setState pour forcer la reconstruction
+      _updateAttenteGroupeButtonState(  // Mise à jour de l'UI ici
+        color: Colors.green,
         enabled: false,
         text: 'Partie lancée',
-        blinking: false, // Désactiver le clignotement
+        blinking: false,
       );
     });
   }
@@ -314,7 +312,7 @@ class _ScoresScreenState extends State<ScoresScreen> with TickerProviderStateMix
                 onPressed: _isAttenteGroupeButtonEnabled ? _onStartGamePressed : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _attenteGroupeButtonColor,
-                  disabledBackgroundColor: Colors.green, // Modifier la couleur du bouton désactivé
+                  disabledBackgroundColor: const Color(0xFF7DBFF8),
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
@@ -405,7 +403,7 @@ class _ScoresScreenState extends State<ScoresScreen> with TickerProviderStateMix
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     _buildScoreCard(
-                                      '${pseudos[0] ?? "J1"} : ${scores[1] ?? 0}',
+                                      '${pseudos[0] ?? "J1"} : ${scores[0] ?? 0}',
                                       cardWidth,
                                       cardHeight,
                                       fontSize,
@@ -415,7 +413,7 @@ class _ScoresScreenState extends State<ScoresScreen> with TickerProviderStateMix
                                     ),
                                     SizedBox(width: spacing),
                                     _buildScoreCard(
-                                      '${pseudos[1] ?? "J2"} : ${scores[2] ?? 0}',
+                                      '${pseudos[1] ?? "J2"} : ${scores[1] ?? 0}',
                                       cardWidth,
                                       cardHeight,
                                       fontSize,
@@ -430,7 +428,7 @@ class _ScoresScreenState extends State<ScoresScreen> with TickerProviderStateMix
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     _buildScoreCard(
-                                      '${pseudos[2] ?? "J3"} : ${scores[3] ?? 0}',
+                                      '${pseudos[2] ?? "J3"} : ${scores[2] ?? 0}',
                                       cardWidth,
                                       cardHeight,
                                       fontSize,
@@ -440,7 +438,7 @@ class _ScoresScreenState extends State<ScoresScreen> with TickerProviderStateMix
                                     ),
                                     SizedBox(width: spacing),
                                     _buildScoreCard(
-                                      '${pseudos[3] ?? "J4"} : ${scores[4] ?? 0}',
+                                      '${pseudos[3] ?? "J4"} : ${scores[3] ?? 0}',
                                       cardWidth,
                                       cardHeight,
                                       fontSize,
@@ -517,7 +515,7 @@ class _ScoresScreenState extends State<ScoresScreen> with TickerProviderStateMix
   void dispose() {
     _controller.dispose();
     _overlayController.dispose();
-    _blinkController.dispose();  // Suppression de l'animationController
+    _blinkController.dispose();
     _messageSubscription?.cancel();
     super.dispose();
   }
