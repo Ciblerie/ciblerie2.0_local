@@ -5,6 +5,9 @@ void communications() {
     String messageLu = Serial1.readStringUntil('\n');
     messageLu.trim();
 
+    Serial.print("📥 Message reçu de l'ESP32 (brut) : ");
+    Serial.println(messageLu); // Affiche le message brut
+
     char messageRecu[32]; // Tableau pour stocker le message reçu
     messageLu.toCharArray(messageRecu, 32);
     messageRecu[messageLu.length()] = '\0';
