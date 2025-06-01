@@ -181,7 +181,7 @@ class _ScoresScreenState extends State<ScoresScreen> with TickerProviderStateMix
     ws.sendMessage(json.encode({'type': 'game_status', 'message': 'START_GAME'}));
     setState(() {
       _updateAttenteGroupeButtonState(
-        color: Colors.grey, // Modifier la couleur en gris
+        color: Colors.green, // Modifier la couleur en gris
         enabled: false,
         text: 'Partie lancée',
         blinking: false, // Désactiver le clignotement
