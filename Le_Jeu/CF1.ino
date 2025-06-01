@@ -349,7 +349,7 @@ void GererInterruption(){
     joueurEnCours = 1;           
     resteEnCours = 3;
     tourEnCours++;
-    Serial.print("Nouveau tourEnCours: "); Serial.println(tourEnCours); // Log
+    Serial.print("Nouveau tourEnCours: "); Serial.println(tourEnCours);
     EcranTourSuivant();    
     myDFPlayer.playMp3Folder(30);   
     EcranJoueurSuivant();  
@@ -415,8 +415,12 @@ void GererInterruption(){
    Serial.println("GO_JS");    
   }
   Serial.println("GererInterruption - Fin");
+  
 //  interrupts();
 //  Serial.println("interrupts");
+
+  // Ajout de l'appel à CF1()
+  CF1(); // Ajout de l'appel à CF1()
 }
 
 void EcranInitialisation(){
