@@ -36,38 +36,6 @@ class WebSocketService with ChangeNotifier {
   final ValueNotifier<bool> showSaveButton = ValueNotifier(false);
   final ValueNotifier<Map<int, int>> pointBonusNotifier = ValueNotifier({0: 0, 1: 0, 2: 0, 3: 0});
 
-  // Ajout des ValueNotifier pour l'état des boutons
-  final ValueNotifier<bool> isAttenteGroupeButtonEnabled = ValueNotifier<bool>(false);
-  final ValueNotifier<Color> attenteGroupeButtonColor = ValueNotifier<Color>(const Color(0xFF7DBFF8));
-  final ValueNotifier<String> attenteGroupeButtonText = ValueNotifier<String>('Partie en attente');
-  final ValueNotifier<bool> isNextPlayerButtonEnabled = ValueNotifier<bool>(false);
-  final ValueNotifier<bool> isNextTurnButtonEnabled = ValueNotifier<bool>(false);
-  final ValueNotifier<bool> isAttenteGroupeButtonBlinking = ValueNotifier<bool>(false); // Ajout pour le clignotement
-
-  // Méthodes pour mettre à jour l'état des boutons
-  void updateAttenteGroupeButtonState({
-    required bool enabled,
-    required Color color,
-    required String text,
-    bool blinking = false, // Paramètre optionnel pour le clignotement
-  }) {
-    isAttenteGroupeButtonEnabled.value = enabled;
-    attenteGroupeButtonColor.value = color;
-    attenteGroupeButtonText.value = text;
-    isAttenteGroupeButtonBlinking.value = blinking;
-    notifyListeners();
-  }
-
-  void updateNextPlayerButtonState({required bool enabled}) {
-    isNextPlayerButtonEnabled.value = enabled;
-    notifyListeners();
-  }
-
-  void updateNextTurnButtonState({required bool enabled}) {
-    isNextTurnButtonEnabled.value = enabled;
-    notifyListeners();
-  }
-
   // === Gestion Ping/Timeout ===
   int lastPingTime = 0;
   static const int PING_INTERVAL = 30000;
